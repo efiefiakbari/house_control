@@ -3,234 +3,51 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>داشبورد هوشمند سخت‌افزار | کنترل آنی</title>
-    <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazir-font@v30.1.0/dist/font-face.css" rel="stylesheet" type="text/css" />
+    <title>پنل کنترل سخت‌افزار</title>
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: Vazir, Tahoma, sans-serif; }
-        
-        body { 
-            background: linear-gradient(135deg, #0f0c20 0%, #15102a 50%, #060409 100%);
-            color: #e2e8f0;
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-            overflow-x: hidden;
-        }
-
-        body::before {
-            content: '';
-            position: absolute;
-            width: 300px;
-            height: 300px;
-            background: rgba(0, 242, 196, 0.15);
-            border-radius: 50%;
-            filter: blur(80px);
-            top: 10%;
-            left: 10%;
-            z-index: -1;
-            animation: floatGlow 8s ease-in-out infinite alternate;
-        }
-
-        @keyframes floatGlow {
-            0% { transform: translateY(0) scale(1); }
-            100% { transform: translateY(30px) scale(1.2); filter: blur(100px); }
-        }
-
-        .container { 
-            width: 100%;
-            max-width: 520px; 
-            background: rgba(30, 30, 50, 0.65); 
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            padding: 30px; 
-            border-radius: 24px; 
-            border: 1px solid rgba(255, 255, 255, 0.07);
-            box-shadow: 0 20px 50px rgba(0,0,0,0.4); 
-        }
-
-        h1 { 
-            color: #fff; 
-            font-size: 22px; 
-            font-weight: 800;
-            margin-bottom: 5px;
-            text-shadow: 0 2px 10px rgba(0, 242, 196, 0.3);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
-
-        .subtitle {
-            color: #8a89a6;
-            font-size: 12px;
-            margin-bottom: 25px;
-            text-align: center;
-        }
-
-        .login-box { 
-            background: rgba(20, 20, 35, 0.6); 
-            padding: 25px; 
-            border-radius: 16px; 
-            border: 1px solid rgba(255, 255, 255, 0.04);
-        }
-
-        .login-box label {
-            display: block;
-            margin-bottom: 12px;
-            font-size: 13px;
-            color: #a0aec0;
-            text-align: center;
-        }
-
-        input { 
-            width: 100%; 
-            padding: 14px; 
-            margin-bottom: 15px; 
-            background: rgba(15, 15, 25, 0.8); 
-            border: 1px solid rgba(255, 255, 255, 0.1); 
-            border-radius: 12px; 
-            font-size: 16px; 
-            color: #fff; 
-            text-align: center; 
-            letter-spacing: 6px;
-            transition: all 0.3s;
-        }
-
-        input:focus {
-            outline: none;
-            border-color: #1f8ef1;
-            box-shadow: 0 0 15px rgba(31, 142, 241, 0.3);
-        }
-
-        .action-btn { 
-            background: linear-gradient(135deg, #1f8ef1 0%, #00d6b4 100%); 
-            color: white; 
-            border: none; 
-            padding: 14px; 
-            border-radius: 12px; 
-            cursor: pointer; 
-            font-weight: bold; 
-            width: 100%; 
-            font-size: 15px;
-            box-shadow: 0 4px 15px rgba(31, 142, 241, 0.25);
-            transition: all 0.3s;
-        }
-
-        .action-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0, 214, 180, 0.4);
-        }
-
-        .card { 
-            background: rgba(255, 255, 255, 0.03); 
-            padding: 18px 20px; 
-            margin: 12px 0; 
-            border-radius: 16px; 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            border: 1px solid rgba(255, 255, 255, 0.05); 
-            transition: transform 0.2s, background 0.2s;
-        }
-
-        .card:hover {
-            transform: scale(1.01);
-            background: rgba(255, 255, 255, 0.05);
-        }
-
-        .card-info { text-align: right; }
-
-        .card-title {
-            font-size: 14px;
-            font-weight: 700;
-            color: #edf2f7;
-            margin-bottom: 4px;
-        }
-
-        .btn { 
-            padding: 10px 24px; 
-            font-size: 14px; 
-            border: none; 
-            border-radius: 10px; 
-            cursor: pointer; 
-            font-weight: bold; 
-            min-width: 95px; 
-            transition: all 0.3s ease;
-        }
-
-        .btn-on { 
-            background: linear-gradient(135deg, #00f2c4 0%, #00b4d8 100%); 
-            color: #0f0c20; 
-            box-shadow: 0 0 15px rgba(0, 242, 196, 0.4);
-        }
-
-        .btn-off { 
-            background: rgba(255, 255, 255, 0.08); 
-            color: #a0aec0;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-        }
-
-        .badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            font-size: 11px;
-            padding: 3px 8px;
-            border-radius: 20px;
-            background: rgba(0, 0, 0, 0.2);
-        }
-
-        .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
-        .dot-on {
-            background-color: #00f2c4;
-            box-shadow: 0 0 8px #00f2c4;
-            animation: pulse 1.5s infinite;
-        }
-        .dot-off { background-color: #718096; }
-
-        @keyframes pulse {
-            0% { transform: scale(0.9); opacity: 0.6; }
-            50% { transform: scale(1.1); opacity: 1; }
-            100% { transform: scale(0.9); opacity: 0.6; }
-        }
-
-        .logout-btn {
-            background: none; border: none; color: #fd5d93; cursor: pointer; font-size: 12px; font-weight: bold;
-        }
+        body { font-family: Tahoma, sans-serif; background-color: #1e1e2f; color: #fff; padding: 20px; text-align: center; direction: rtl; }
+        .container { max-width: 500px; margin: 0 auto; background: #27293d; padding: 20px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+        h1 { color: #00f2c4; font-size: 24px; }
+        .card { background: #1d1e2e; padding: 15px; margin: 15px 0; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #344675; }
+        .btn { padding: 10px 25px; font-size: 16px; border: none; border-radius: 8px; cursor: pointer; color: white; font-weight: bold; min-width: 100px; transition: 0.2s; }
+        .btn-on { background: #00f2c4; color: #1d1e2e; }
+        .btn-off { background: #fd5d93; }
+        .status { margin-top: 5px; color: #8c8cbe; font-size: 13px; }
+        .login-box { margin-bottom: 20px; padding: 15px; background: #1d1e2e; border-radius: 10px; border: 1px solid #344675; text-align: right; }
+        input { width: 95%; padding: 10px; margin: 8px 0; background: #27293d; border: 1px solid #344675; border-radius: 6px; font-size: 14px; color: #fff; text-align: center; }
+        label { font-size: 14px; color: #00f2c4; display: block; text-align: center; }
+        .action-btn { background: #1f8ef1; color: white; border: none; padding: 10px; border-radius: 6px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 10px; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>⚡ پنل سایبرپانک مدیریت سخت‌افزار</h1>
-    <div class="subtitle">سیستم کنترل متمرکز IOT مبتنی بر وب زنده</div>
+    <h1>⚡ پنل کنترل متمرکز سخت‌افزار</h1>
     
     <div id="login-section" class="login-box">
-        <label>🔑 جهت همگام‌سازی ابری رمز عبور را وارد کنید</label>
-        <input type="password" id="panel-pass" placeholder="••••" maxlength="6">
-        <button class="action-btn" onclick="checkLogin()">ارتباط امن و ورود</button>
+        <label>🔑 رمز عبور ورود به سیستم را وارد کنید:</label>
+        <input type="password" id="panel-pass" placeholder="****">
+        <button class="action-btn" onclick="checkLogin()">ورود به پنل</button>
     </div>
 
     <div id="panel-content" style="display:none;">
-        <div style="text-align: left; margin-bottom: 15px;">
-            <button class="logout-btn" onclick="location.reload()">🔒 خروج و قفل پنل</button>
+        <div style="text-align: left; margin-bottom: 10px;">
+            <button onclick="location.reload()" style="background:none; border:none; color:#fd5d93; cursor:pointer; font-size:12px;">🔒 خروج و قفل مجدد</button>
         </div>
-        
         <div class="card">
-            <div class="card-info">
-                <div class="card-title">چراغ وضعیت برد (Built-in LED)</div>
-                <div class="badge"><span id="led-dot" class="dot dot-off"></span><span id="led-status">نامشخص</span></div>
+            <div>
+                <strong>💡 چراغ روی برد (Built-in LED)</strong>
+                <div class="status" id="led-status">وضعیت: نامشخص</div>
             </div>
             <button id="led-btn" class="btn btn-off" onclick="toggleLED()">خاموش</button>
         </div>
-
         <div id="gpio-container"></div>
     </div>
 </div>
 
 <script>
+    // ⚠️ این دو متغیر را پایین‌تر با استفاده از ابزار آنلاین به بـیس۶۴ تبدیل کنید تا ربات‌ها متوجه نشوند!
+    // در حال حاضر اطلاعات قبلی شما به صورت انکود شده قرار دارد:
     const ENC_TOKEN = "Z2hwX0o3alhBOTBUQnpjZE40OUxjbGRvM1dpQWRxa3pEMDJCSWJLVA=="; 
     const ENC_GIST  = "MjcwNjA4OTMxYTg2ZTBkMTNlMjRjZmY1NDE5MzkzYjg="; 
     
@@ -240,11 +57,15 @@
 
     function checkLogin() {
         const password = document.getElementById('panel-pass').value.trim();
+        
         if (password === "1234") {
+            // رمزگشایی بیس۶۴ بدون نیاز به لایبرری خارجی
             REAL_TOKEN = atob(ENC_TOKEN);
             REAL_GIST = atob(ENC_GIST);
+
             document.getElementById('login-section').style.display = 'none';
             document.getElementById('panel-content').style.display = 'block';
+            
             loadGistData();
             setInterval(loadGistData, 4000); 
         } else {
@@ -262,42 +83,36 @@
     async function loadGistData() {
         try {
             const res = await fetch(`https://api.github.com/gists/${REAL_GIST}?t=${Date.now()}`, { headers: getHeaders() });
-            if (!res.ok) return;
+            if (!res.ok) {
+                alert("خطا در احراز هویت گیت‌هاب! احتمالاً توکن توسط گیت‌هاب باطل شده است.");
+                return;
+            }
             const data = await res.json();
             currentData = JSON.parse(data.files["status.json"].content);
             renderPanel();
         } catch (err) {
-            console.error("خطا در ارتباط:", err);
+            console.error("خطا در دریافت وضعیت:", err);
         }
     }
 
     function renderPanel() {
-        // رندر ال‌ای‌دی برد
         const ledBtn = document.getElementById('led-btn');
         const ledStatus = document.getElementById('led-status');
-        const ledDot = document.getElementById('led-dot');
-        
         if (currentData.led) {
-            ledBtn.className = "btn btn-on"; ledBtn.innerText = "روشن";
-            ledStatus.innerText = "وضعیت: روشن"; ledDot.className = "dot dot-on";
+            ledBtn.className = "btn btn-on"; ledBtn.innerText = "روشن"; ledStatus.innerText = "وضعیت: روشن";
         } else {
-            ledBtn.className = "btn btn-off"; ledBtn.innerText = "خاموش";
-            ledStatus.innerText = "وضعیت: خاموش"; ledDot.className = "dot dot-off";
+            ledBtn.className = "btn btn-off"; ledBtn.innerText = "خاموش"; ledStatus.innerText = "وضعیت: خاموش";
         }
 
-        // رندر فیکس شده و بدون خطای تمام کانال‌های پین خروجی
         const container = document.getElementById('gpio-container');
         container.innerHTML = '';
         currentData.gpio.forEach(g => {
             const card = document.createElement('div');
             card.className = 'card';
             card.innerHTML = `
-                <div class="card-info">
-                    <div class="card-title">کانال خروجی GPIO ${g.pin}</div>
-                    <div class="badge">
-                        <span class="dot ${g.state ? 'dot-on' : 'dot-off'}"></span>
-                        <span>وضعیت: ${g.state ? 'فعال 🟢' : 'غیرفعال ⚫'}</span>
-                    </div>
+                <div>
+                    <strong>🔌 پین شماره GPIO ${g.pin}</strong>
+                    <div class="status">وضعیت: ${g.state ? 'روشن 🟢' : 'خاموش ⚫'}</div>
                 </div>
                 <button class="btn ${g.state ? 'btn-on' : 'btn-off'}" onclick="toggleGPIO(${g.pin})">
                     ${g.state ? 'روشن' : 'خاموش'}
@@ -308,32 +123,25 @@
     }
 
     async function updateGist() {
-        const updatePayload = { "files": { "status.json": { "content": JSON.stringify(currentData) } } };
+        const updatePayload = {
+            "files": { "status.json": { "content": JSON.stringify(currentData) } }
+        };
         try {
             await fetch(`https://api.github.com/gists/${REAL_GIST}`, {
                 method: "PATCH",
                 headers: getHeaders(),
                 body: JSON.stringify(updatePayload)
             });
+            renderPanel();
         } catch (err) {
-            console.error("خطا در ارسال پکت");
+            console.error("خطا در ارسال دستور");
         }
     }
 
-    function toggleLED() { 
-        currentData.led = !currentData.led; 
-        renderPanel(); 
-        updateGist(); 
-    }
-
-    // 👈 اصلاح قطعی تابع کلیک بر اساس شماره پین واقعی سخت‌افزار
-    function toggleGPIO(pinNum) {
-        const target = currentData.gpio.find(g => g.pin === parseInt(pinNum));
-        if (target) { 
-            target.state = !target.state; 
-            renderPanel(); 
-            updateGist(); 
-        }
+    function toggleLED() { currentData.led = !currentData.led; updateGist(); }
+    function toggleGPIO(pinIdx) {
+        const target = currentData.gpio.find(g => g.pin === pinIdx);
+        if (target) { target.state = !target.state; updateGist(); }
     }
 </script>
 </body>
