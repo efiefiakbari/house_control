@@ -19,7 +19,6 @@
             overflow-x: hidden;
         }
 
-        /* انیمیشن بک‌گراند متحرک */
         body::before {
             content: '';
             position: absolute;
@@ -49,12 +48,6 @@
             border-radius: 24px; 
             border: 1px solid rgba(255, 255, 255, 0.07);
             box-shadow: 0 20px 50px rgba(0,0,0,0.4); 
-            transform: translateY(20px);
-            animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
-
-        @keyframes fadeIn {
-            to { transform: translateY(0); opacity: 1; }
         }
 
         h1 { 
@@ -73,10 +66,9 @@
             color: #8a89a6;
             font-size: 12px;
             margin-bottom: 25px;
-            letter-spacing: 0.5px;
+            text-align: center;
         }
 
-        /* استایل جعبه ورود رمز */
         .login-box { 
             background: rgba(20, 20, 35, 0.6); 
             padding: 25px; 
@@ -123,7 +115,7 @@
             width: 100%; 
             font-size: 15px;
             box-shadow: 0 4px 15px rgba(31, 142, 241, 0.25);
-            transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+            transition: all 0.3s;
         }
 
         .action-btn:hover {
@@ -131,7 +123,6 @@
             box-shadow: 0 6px 20px rgba(0, 214, 180, 0.4);
         }
 
-        /* کارت‌ها و دکمه‌های کنترلی درون پنل */
         .card { 
             background: rgba(255, 255, 255, 0.03); 
             padding: 18px 20px; 
@@ -141,17 +132,15 @@
             justify-content: space-between; 
             align-items: center; 
             border: 1px solid rgba(255, 255, 255, 0.05); 
-            transition: transform 0.3s, background 0.3s;
+            transition: transform 0.2s, background 0.2s;
         }
 
         .card:hover {
-            transform: scale(1.02);
+            transform: scale(1.01);
             background: rgba(255, 255, 255, 0.05);
         }
 
-        .card-info {
-            text-align: right;
-        }
+        .card-info { text-align: right; }
 
         .card-title {
             font-size: 14px;
@@ -160,7 +149,6 @@
             margin-bottom: 4px;
         }
 
-        /* دکمه‌های توگل پیشرفته */
         .btn { 
             padding: 10px 24px; 
             font-size: 14px; 
@@ -169,9 +157,7 @@
             cursor: pointer; 
             font-weight: bold; 
             min-width: 95px; 
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            position: relative;
-            overflow: hidden;
+            transition: all 0.3s ease;
         }
 
         .btn-on { 
@@ -186,12 +172,6 @@
             border: 1px solid rgba(255, 255, 255, 0.05);
         }
 
-        .btn-off:hover {
-            background: rgba(255, 255, 255, 0.15);
-            color: #fff;
-        }
-
-        /* نشانگرهای وضعیت نئونی گیت‌ها */
         .badge {
             display: inline-flex;
             align-items: center;
@@ -202,19 +182,12 @@
             background: rgba(0, 0, 0, 0.2);
         }
 
-        .dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            display: inline-block;
-        }
-
+        .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
         .dot-on {
             background-color: #00f2c4;
             box-shadow: 0 0 8px #00f2c4;
             animation: pulse 1.5s infinite;
         }
-
         .dot-off { background-color: #718096; }
 
         @keyframes pulse {
@@ -224,21 +197,14 @@
         }
 
         .logout-btn {
-            background: none; 
-            border: none; 
-            color: #fd5d93; 
-            cursor: pointer; 
-            font-size: 12px;
-            font-weight: bold;
-            transition: opacity 0.2s;
+            background: none; border: none; color: #fd5d93; cursor: pointer; font-size: 12px; font-weight: bold;
         }
-        .logout-btn:hover { opacity: 0.8; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1><span>⚡</span> پنل سایبرپانک مدیریت سخت‌افزار</h1>
+    <h1>⚡ پنل سایبرپانک مدیریت سخت‌افزار</h1>
     <div class="subtitle">سیستم کنترل متمرکز IOT مبتنی بر وب زنده</div>
     
     <div id="login-section" class="login-box">
@@ -265,7 +231,6 @@
 </div>
 
 <script>
-    // اطلاعات انکود شده معتبر شما در گیت‌هاب
     const ENC_TOKEN = "Z2hwX0o3alhBOTBUQnpjZE40OUxjbGRvM1dpQWRxa3pEMDJCSWJLVA=="; 
     const ENC_GIST  = "MjcwNjA4OTMxYTg2ZTBkMTNlMjRjZmY1NDE5MzkzYjg="; 
     
@@ -275,18 +240,13 @@
 
     function checkLogin() {
         const password = document.getElementById('panel-pass').value.trim();
-        
         if (password === "1234") {
             REAL_TOKEN = atob(ENC_TOKEN);
             REAL_GIST = atob(ENC_GIST);
-
-            document.getElementById('login-section').style.opacity = '0';
-            setTimeout(() => {
-                document.getElementById('login-section').style.display = 'none';
-                document.getElementById('panel-content').style.display = 'block';
-                loadGistData();
-                setInterval(loadGistData, 4000); 
-            }, 300);
+            document.getElementById('login-section').style.display = 'none';
+            document.getElementById('panel-content').style.display = 'block';
+            loadGistData();
+            setInterval(loadGistData, 4000); 
         } else {
             alert('رمز عبور اشتباه است! ❌');
         }
@@ -312,7 +272,7 @@
     }
 
     function renderPanel() {
-        // رندر چراغ برد
+        // رندر ال‌ای‌دی برد
         const ledBtn = document.getElementById('led-btn');
         const ledStatus = document.getElementById('led-status');
         const ledDot = document.getElementById('led-dot');
@@ -325,7 +285,7 @@
             ledStatus.innerText = "وضعیت: خاموش"; ledDot.className = "dot dot-off";
         }
 
-        // رندر زنجیره‌ای پین‌های رله
+        // رندر فیکس شده و بدون خطای تمام کانال‌های پین خروجی
         const container = document.getElementById('gpio-container');
         container.innerHTML = '';
         currentData.gpio.forEach(g => {
@@ -355,16 +315,25 @@
                 headers: getHeaders(),
                 body: JSON.stringify(updatePayload)
             });
-            renderPanel();
         } catch (err) {
             console.error("خطا در ارسال پکت");
         }
     }
 
-    function toggleLED() { currentData.led = !currentData.led; renderPanel(); updateGist(); }
-    function toggleGPIO(pinIdx) {
-        const target = currentData.gpio.find(g => g.pin === pinIdx);
-        if (target) { target.state = !target.state; renderPanel(); updateGist(); }
+    function toggleLED() { 
+        currentData.led = !currentData.led; 
+        renderPanel(); 
+        updateGist(); 
+    }
+
+    // 👈 اصلاح قطعی تابع کلیک بر اساس شماره پین واقعی سخت‌افزار
+    function toggleGPIO(pinNum) {
+        const target = currentData.gpio.find(g => g.pin === parseInt(pinNum));
+        if (target) { 
+            target.state = !target.state; 
+            renderPanel(); 
+            updateGist(); 
+        }
     }
 </script>
 </body>
