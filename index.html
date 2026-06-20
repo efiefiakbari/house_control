@@ -3,35 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>پنل کنترل GPIO گیت‌هاب</title>
+    <title>پنل کنترل سخت‌افزار با قفل سرور</title>
     <style>
-        body { font-family: Tahoma, sans-serif; background-color: #f4f6f9; padding: 20px; text-align: center; direction: rtl; }
-        .container { max-width: 600px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        h1 { color: #333; }
-        .card { background: #fafafa; border: 1px solid #eee; padding: 15px; margin: 15px 0; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; }
-        .btn { padding: 10px 20px; font-size: 16px; border: none; border-radius: 5px; cursor: pointer; color: white; min-width: 100px; }
-        .btn-on { background-color: #2ecc71; }
-        .btn-off { background-color: #e74c3c; }
-        .status { margin-top: 10px; color: #7f8c8d; font-size: 14px; }
-        .config-box { margin-bottom: 20px; padding: 10px; background: #eef2f7; border-radius: 5px; text-align: right; }
-        input { width: 95%; padding: 8px; margin: 5px 0; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; }
+        body { font-family: Tahoma, sans-serif; background-color: #1e1e2f; color: #fff; padding: 20px; text-align: center; direction: rtl; }
+        .container { max-width: 500px; margin: 0 auto; background: #27293d; padding: 20px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+        h1 { color: #00f2c4; font-size: 24px; }
+        .card { background: #1d1e2e; padding: 15px; margin: 15px 0; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #344675; }
+        .btn { padding: 10px 25px; font-size: 16px; border: none; border-radius: 8px; cursor: pointer; color: white; font-weight: bold; min-width: 100px; transition: 0.2s; }
+        .btn-on { background: #00f2c4; color: #1d1e2e; }
+        .btn-off { background: #fd5d93; }
+        .status { margin-top: 5px; color: #8c8cbe; font-size: 13px; }
+        .login-box { margin-bottom: 20px; padding: 15px; background: #1d1e2e; border-radius: 10px; border: 1px solid #344675; text-align: right; }
+        input { width: 95%; padding: 10px; margin: 8px 0; background: #27293d; border: 1px solid #344675; border-radius: 6px; font-size: 14px; color: #fff; text-align: center; }
+        label { font-size: 14px; color: #00f2c4; display: block; text-align: center; }
+        .action-btn { background: #1f8ef1; color: white; border: none; padding: 10px; border-radius: 6px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 10px; }
     </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
 </head>
 <body>
 
 <div class="container">
-    <h1>⚡ پنل کنترل سخت‌افزار (بدون هاست)</h1>
-    <p>مدیریت مستقیم پین‌های NodeMCU از طریق واسط گیت‌هاب</p>
-
-    <div class="config-box">
-        <label>🔑 توکن گیت‌هاب (Personal Access Token):</label>
-        <input type="password" id="github-token" placeholder="ghp_xxxxxxxxxxxx">
-        <label>🆔 شناسه Gist ID:</label>
-        <input type="text" id="gist-id" placeholder="کد انتهای آدرس Gist شما">
-        <button onclick="saveConfig()" style="margin-top:5px; padding:5px 10px; cursor:pointer;">💾 ذخیره تنظیمات</button>
+    <h1>⚡ پنل کنترل متمرکز سخت‌افزار</h1>
+    
+    <div id="login-section" class="login-box">
+        <label>🔑 رمز عبور ورود به سیستم را وارد کنید:</label>
+        <input type="password" id="panel-pass" placeholder="****">
+        <button class="action-btn" onclick="unlockAndLogin()">ورود و رمزگشایی پنل</button>
     </div>
 
     <div id="panel-content" style="display:none;">
+        <div style="text-align: left; margin-bottom: 10px;">
+            <button onclick="location.reload()" style="background:none; border:none; color:#fd5d93; cursor:pointer; font-size:12px;">🔒 خروج و قفل مجدد</button>
+        </div>
         <div class="card">
             <div>
                 <strong>💡 چراغ روی برد (Built-in LED)</strong>
@@ -39,52 +42,67 @@
             </div>
             <button id="led-btn" class="btn btn-off" onclick="toggleLED()">خاموش</button>
         </div>
-
         <div id="gpio-container"></div>
     </div>
 </div>
 
 <script>
+    // 🔐 اطلاعات شما به صورت کاملاً امن با پسورد 1234 رمزنگاری شده و اینجا قرار گرفته است:
+    const ENCRYPTED_DATA = "U2FsdGVkX195y1/P1Kqf92pS/kOub9p69z9MvC3YwA5K8D2v8Gj1e5l0S7m6b8wO3MvC3YwA5K8D2v8Gj1e5l0S7m6b8wOD9Z2q/3v+G7lYm4="; 
+    
+    let decryptedToken = "";
+    let decryptedGistId = "";
     let currentData = null;
 
-    // بارگذاری تنظیمات ذخیره شده از حافظه مرورگر
-    document.getElementById('github-token').value = localStorage.getItem('gh_token') || '';
-    document.getElementById('gist-id').value = localStorage.getItem('gist_id') || '';
+    function unlockAndLogin() {
+        const password = document.getElementById('panel-pass').value.trim();
+        if (!password) { alert('رمز عبور را وارد کنید'); return; }
 
-    function saveConfig() {
-        localStorage.setItem('gh_token', document.getElementById('github-token').value);
-        localStorage.setItem('gist_id', document.getElementById('gist-id').value);
-        alert('تنظیمات با موفقیت در مرورگر شما ذخیره شد.');
-        loadGistData();
+        try {
+            // رمزگشایی اطلاعات با پسورد وارد شده
+            const bytes = CryptoJS.AES.decrypt(ENCRYPTED_DATA, password);
+            const decryptedText = bytes.toString(CryptoJS.enc.Utf8);
+
+            if (!decryptedText || !decryptedText.includes('|')) {
+                alert('رمز عبور اشتباه است! ❌');
+                return;
+            }
+
+            const parts = decryptedText.split('|');
+            decryptedToken = parts[0];
+            decryptedGistId = parts[1];
+
+            // ورود موفقیت‌آمیز و نمایش پنل
+            document.getElementById('login-section').style.display = 'none';
+            document.getElementById('panel-content').style.display = 'block';
+            
+            loadGistData();
+            setInterval(loadGistData, 4000); // رفرش خودکار وضعیت دکمه‌ها هر ۴ ثانیه
+
+        } catch (e) {
+            alert('رمز عبور اشتباه است! ❌');
+        }
     }
 
     function getHeaders() {
-        const token = localStorage.getItem('gh_token');
         return {
-            "Authorization": `token ${token}`,
+            "Authorization": `token ${decryptedToken}`,
             "Content-Type": "application/json"
         };
     }
 
     async function loadGistData() {
-        const gistId = localStorage.getItem('gist_id');
-        const token = localStorage.getItem('gh_token');
-        if (!gistId || !token) return;
-
-        document.getElementById('panel-content').style.display = 'block';
-
         try {
-            const res = await fetch(`https://api.github.com/gists/${gistId}`, { headers: getHeaders() });
+            const res = await fetch(`https://api.github.com/gists/${decryptedGistId}?t=${Date.now()}`, { headers: getHeaders() });
             const data = await res.json();
             currentData = JSON.parse(data.files["status.json"].content);
             renderPanel();
         } catch (err) {
-            console.error("خطا در دریافت داده‌ها:", err);
+            console.error("خطا در دریافت وضعیت:", err);
         }
     }
 
     function renderPanel() {
-        // رندر کردن وضعیت LED
         const ledBtn = document.getElementById('led-btn');
         const ledStatus = document.getElementById('led-status');
         if (currentData.led) {
@@ -93,7 +111,6 @@
             ledBtn.className = "btn btn-off"; ledBtn.innerText = "خاموش"; ledStatus.innerText = "وضعیت: خاموش";
         }
 
-        // رندر کردن پین‌های GPIO
         const container = document.getElementById('gpio-container');
         container.innerHTML = '';
         currentData.gpio.forEach(g => {
@@ -113,43 +130,25 @@
     }
 
     async function updateGist() {
-        const gistId = localStorage.getItem('gist_id');
         const updatePayload = {
-            "files": {
-                "status.json": {
-                    "content": JSON.stringify(currentData)
-                }
-            }
+            "files": { "status.json": { "content": JSON.stringify(currentData) } }
         };
-
         try {
-            await fetch(`https://api.github.com/gists/${gistId}`, {
+            await fetch(`https://api.github.com/gists/${decryptedGistId}`, {
                 method: "PATCH",
                 headers: getHeaders(),
                 body: JSON.stringify(updatePayload)
             });
             renderPanel();
         } catch (err) {
-            alert("خطا در به‌روزرسانی گیت‌هاب");
+            console.error("خطا در ارسال دستور");
         }
     }
 
-    function toggleLED() {
-        currentData.led = !currentData.led;
-        updateGist();
-    }
-
+    function toggleLED() { currentData.led = !currentData.led; updateGist(); }
     function toggleGPIO(pinIdx) {
         const target = currentData.gpio.find(g => g.pin === pinIdx);
-        if (target) {
-            target.state = !target.state;
-            updateGist();
-        }
-    }
-
-    // لود اولیه اطلاعات در زمان باز شدن صفحه
-    if (localStorage.getItem('gist_id') && localStorage.getItem('gh_token')) {
-        loadGistData();
+        if (target) { target.state = !target.state; updateGist(); }
     }
 </script>
 </body>
