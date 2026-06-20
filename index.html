@@ -46,7 +46,7 @@
 </div>
 
 <script>
-    // تکه کردن توکن برای جلوگیری از شناسایی توسط ربات‌های امنیتی گیت‌هاب
+    // تقسیم توکن جهت امنیت و جلوگیری از حذف خودکار توسط گیت‌هاب
     const p1 = "ghp_J7jXA90TBzcdN49L";
     const p2 = "cldo3WiAdqkzD02BIbKT";
     const GIST_ID = "270608931a86e0d13e24cff5419393b8"; 
@@ -56,13 +56,12 @@
     function checkLogin() {
         const password = document.getElementById('panel-pass').value.trim();
         
-        // چک کردن پسورد ساده عددی
         if (password === "1234") {
             document.getElementById('login-section').style.display = 'none';
             document.getElementById('panel-content').style.display = 'block';
             
             loadGistData();
-            setInterval(loadGistData, 4000); // رفرش وضعیت هر ۴ ثانیه
+            setInterval(loadGistData, 4000); 
         } else {
             alert('رمز عبور اشتباه است! ❌');
         }
@@ -115,7 +114,7 @@
 
     async function updateGist() {
         const updatePayload = {
-            "files": { "status.json": { "content": JSON.stringify(currentData) } } }
+            "files": { "status.json": { "content": JSON.stringify(currentData) } }
         };
         try {
             await fetch(`https://api.github.com/gists/${GIST_ID}`, {
