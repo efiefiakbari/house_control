@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>پنل کنترل GPIO گیت‌هاب</title>
+    <style>
+        body { font-family: Tahoma, sans-serif; background-color: #f4f6f9; padding: 20px; text-align: center; direction: rtl; }
+        .container { max-width: 600px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        h1 { color: #333; }
+        .card { background: #fafafa; border: 1px solid #eee; padding: 15px; margin: 15px 0; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; }
+        .btn { padding: 10px 20px; font-size: 16px; border: none; border-radius: 5px; cursor: pointer; color: white; min-width: 100px; }
+        .btn-on { background-color: #2ecc71; }
+        .btn-off { background-color: #e74c3c; }
+        .status { margin-top: 10px; color: #7f8c8d; font-size: 14px; }
+        .config-box { margin-bottom: 20px; padding: 10px; background: #eef2f7; border-radius: 5px; text-align: right; }
+        input { width: 95%; padding: 8px; margin: 5px 0; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>⚡ پنل کنترل سخت‌افزار (بدون هاست)</h1>
+    <p>مدیریت مستقیم پین‌های NodeMCU از طریق واسط گیت‌هاب</p>
+
+    <div class="config-box">
+        <label>🔑 توکن گیت‌هاب (Personal Access Token):</label>
+        <input type="password" id="github-token" placeholder="ghp_xxxxxxxxxxxx">
+        <label>🆔 شناسه Gist ID:</label>
+        <input type="text" id="gist-id" placeholder="کد انتهای آدرس Gist شما">
+        <button onclick="saveConfig()" style="margin-top:5px; padding:5px 10px; cursor:pointer;">💾 ذخیره تنظیمات</button>
+    </div>
+
+    <div id="panel-content" style="display:none;">
+        <div class="card">
+            <div>
+                <strong>💡 چراغ روی برد (Built-in LED)</strong>
+                <div class="status" id="led-status">وضعیت: نامشخص</div>
+            </div>
+            <button id="led-btn" class="btn btn-off" onclick="toggleLED()">خاموش</button>
+        </div>
+
+        <div id="gpio-container"></div>
+    </div>
+</div>
+
+<script>
+    let currentData = null;
+
+    // بارگذاری تنظیمات ذخیره شده از حافظه مرورگر
+    document.getElementById('github-token').value = localStorage.getItem('gh_token') || '';
+    document.getElementById('gist-id').value = localStorage.getItem('gist_id') || '';
+
+    function saveConfig() {
+        localStorage.setItem('gh_token', document.getElementById('github-token').value);
+        localStorage.setItem('gist_id', document.getElementById('gist-id').value);
+        alert('تنظیمات با موفقیت در مرورگر شما ذخیره شد.');
+        loadGistData();
+    }
+
+    function getHeaders() {
+        const token = localStorage.getItem('gh_token');
+        return {
+            "Authorization": `token ${token}`,
+            "Content-Type": "application/json"
+        };
+    }
+
+    async function loadGistData() {
+        const gistId = localStorage.getItem('gist_id');
+        const token = localStorage.getItem('gh_token');
+        if (!gistId || !token) return;
+
+        document.getElementById('panel-content').style.display = 'block';
+
+        try {
+            const res = await fetch(`https://api.github.com/gists/${gistId}`, { headers: getHeaders() });
+            const data = await res.json();
+            currentData = JSON.parse(data.files["status.json"].content);
+            renderPanel();
+        } catch (err) {
+            console.error("خطا در دریافت داده‌ها:", err);
+        }
+    }
+
+    function renderPanel() {
+        // رندر کردن وضعیت LED
+        const ledBtn = document.getElementById('led-btn');
+        const ledStatus = document.getElementById('led-status');
+        if (currentData.led) {
+            ledBtn.className = "btn btn-on"; ledBtn.innerText = "روشن"; ledStatus.innerText = "وضعیت: روشن";
+        } else {
+            ledBtn.className = "btn btn-off"; ledBtn.innerText = "خاموش"; ledStatus.innerText = "وضعیت: خاموش";
+        }
+
+        // رندر کردن پین‌های GPIO
+        const container = document.getElementById('gpio-container');
+        container.innerHTML = '';
+        currentData.gpio.forEach(g => {
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.innerHTML = `
+                <div>
+                    <strong>🔌 پین شماره GPIO ${g.pin}</strong>
+                    <div class="status">وضعیت: ${g.state ? 'روشن 🟢' : 'خاموش ⚫'}</div>
+                </div>
+                <button class="btn ${g.state ? 'btn-on' : 'btn-off'}" onclick="toggleGPIO(${g.pin})">
+                    ${g.state ? 'روشن' : 'خاموش'}
+                </button>
+            `;
+            container.appendChild(card);
+        });
+    }
+
+    async function updateGist() {
+        const gistId = localStorage.getItem('gist_id');
+        const updatePayload = {
+            "files": {
+                "status.json": {
+                    "content": JSON.stringify(currentData)
+                }
+            }
+        };
+
+        try {
+            await fetch(`https://api.github.com/gists/${gistId}`, {
+                method: "PATCH",
+                headers: getHeaders(),
+                body: JSON.stringify(updatePayload)
+            });
+            renderPanel();
+        } catch (err) {
+            alert("خطا در به‌روزرسانی گیت‌هاب");
+        }
+    }
+
+    function toggleLED() {
+        currentData.led = !currentData.led;
+        updateGist();
+    }
+
+    function toggleGPIO(pinIdx) {
+        const target = currentData.gpio.find(g => g.pin === pinIdx);
+        if (target) {
+            target.state = !target.state;
+            updateGist();
+        }
+    }
+
+    // لود اولیه اطلاعات در زمان باز شدن صفحه
+    if (localStorage.getItem('gist_id') && localStorage.getItem('gh_token')) {
+        loadGistData();
+    }
+</script>
+</body>
+</html>
